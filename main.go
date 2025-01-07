@@ -8,3 +8,12 @@ type Room struct {
 	isEnd       bool
 	connections []*Room
 }
+
+//Ant farm represents the whole colony 
+type AntFarm struct {
+	rooms map[string]*Room
+	startRoom *Room
+	endRoom	*Room
+	numAnts int
+	paths [][]string
+}
