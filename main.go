@@ -17,3 +17,10 @@ type AntFarm struct {
 	numAnts int
 	paths [][]string
 }
+
+//initialise a new ant farm
+func NewAntFarm() *AntFarm {
+	return &AntFarm{
+		rooms: make(map[string]*Room),
+	}
+}
