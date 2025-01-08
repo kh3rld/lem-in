@@ -136,4 +136,11 @@ func (af *AntFarm) Parselink(line string) error {
 	if !exists1 || !exists2 {
 		return  fmt.Errorf("ERROR: invalid data format, link to unknown room")
 	}
+
+	//validate if connection exists
+	for _, conn := range room1.connections {
+		if conn == room2 {
+			return fmt.Errorf("ERROR: invalid data format,duplicate link")
+		}
+	}
 }
