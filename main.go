@@ -239,4 +239,9 @@ func main() {
 		return
 	}
 	fmt.Println(string(content))
+	farm.FindPaths()
+	moves := farm.SimulateAnts()
+	for _, move := range moves {
+		fmt.Println(move)
+	}
 }
