@@ -74,3 +74,40 @@ func (af *AntFarm) ParseInput(filename string) error {
 	}
 	return nil
 }
+
+func (af *AntFarm) ParseRoom (line string, isStart bool) error {
+	parts := strings.Fields(line)
+	if len(parts) != 3 {
+		return fmt.Errorf("ERROR: invalid data format, invalid room name")
+	}
+
+	name := parts[0]
+	if strings.HasPrefix(name, "L") || strings.HasPrefix("#") {
+		return fmt.Errorf("ERROR: invalid data format, invalid room name")
+	}
+
+	x, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return fmt.Errorf(("ERROR: invalid data format, invalid x co-ordinate"))
+	}
+
+	y, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return fmt.Errorf("ERROR: invalid data format, invalid y co-ordinate")
+	}
+
+	room :=  &Room {
+		name: name,
+		x: x,
+		y: y,
+		isStart: isStart,
+		connections: make([]*Room, 0),
+	}
+	if isStart {
+		if af.startRoom != nil {
+			return fmt.Errorf("ERROR: invalid data format, multipla start rooms")
+		}
+		af.startRoom = room
+		return nil
+	}
+}
