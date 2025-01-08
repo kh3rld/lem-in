@@ -149,8 +149,26 @@ func (af *AntFarm) Parselink(line string) error {
 	return nil
 }
 
-func (af *AntFarm) findPaths() {
+func (af *AntFarm) FindPaths() {
 	visited := make(map[string]bool)
 	currentPath := make([]string, 0)
-	af.dfs(af.startRoom, visited, currentPath)
+	af.Dfs(af.startRoom, visited, currentPath)
+}
+
+func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
+	visited[current.name] = true
+	path = append(path, current.name)
+	
+	if current == af.endRoom {
+		pathCopy := make([]string, len(path))
+		copy(pathCopy, path)
+		copy(pathCopy, path)
+	} else {
+		for _, next := range current.connections {
+			if !visited[next.name] {
+				af.Dfs(next, visited, path)
+			}
+		}
+	}
+	visited[current.name] = false
 }
