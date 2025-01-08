@@ -100,41 +100,49 @@ func (af *AntFarm) ParseInput(filename string) error {
 }
 
 func (af *AntFarm) ParseRoom(line string, isStart bool) error {
-	parts := strings.Fields(line)
-	if len(parts) != 3 {
-		return fmt.Errorf("ERROR: invalid data format, invalid room name")
-	}
+    parts := strings.Fields(line)
+    if len(parts) != 3 {
+        return fmt.Errorf("ERROR: invalid data format, invalid room name")
+    }
 
-	name := parts[0]
-	if strings.HasPrefix(name, "L") || strings.HasPrefix(name, "#") {
-		return fmt.Errorf("ERROR: invalid data format, invalid room name")
-	}
+    name := parts[0]
+    if strings.HasPrefix(name, "L") || strings.HasPrefix(name, "#") {
+        return fmt.Errorf("ERROR: invalid data format, invalid room name")
+    }
 
-	x, err := strconv.Atoi(parts[0])
-	if err != nil {
-		return fmt.Errorf(("ERROR: invalid data format, invalid x co-ordinate"))
-	}
+    x, err := strconv.Atoi(parts[1])  // Fixed: using parts[1] for x coordinate
+    if err != nil {
+        return fmt.Errorf("ERROR: invalid data format, invalid x co-ordinate")
+    }
 
-	y, err := strconv.Atoi(parts[2])
-	if err != nil {
-		return fmt.Errorf("ERROR: invalid data format, invalid y co-ordinate")
-	}
+    y, err := strconv.Atoi(parts[2])
+    if err != nil {
+        return fmt.Errorf("ERROR: invalid data format, invalid y co-ordinate")
+    }
 
-	room := &Room{
-		name:        name,
-		x:           x,
-		y:           y,
-		isStart:     isStart,
-		connections: make([]*Room, 0),
-	}
-	if isStart {
-		if af.startRoom != nil {
-			return fmt.Errorf("ERROR: invalid data format, multipla start rooms")
-		}
-		af.startRoom = room
-	}
-	af.rooms[name] = room
-	return nil
+    room := &Room{
+        name:        name,
+        x:           x,
+        y:           y,
+        isStart:     isStart,
+        isEnd:       line == "##end",  // Added end room handling
+        connections: make([]*Room, 0),
+    }
+
+    if isStart {
+        if af.startRoom != nil {
+            return fmt.Errorf("ERROR: invalid data format, multiple start rooms")
+        }
+        af.startRoom = room
+    }
+    if room.isEnd {
+        if af.endRoom != nil {
+            return fmt.Errorf("ERROR: invalid data format, multiple end rooms")
+        }
+        af.endRoom = room
+    }
+    af.rooms[name] = room
+    return nil
 }
 
 // parslink parses a link line and adds the conections
