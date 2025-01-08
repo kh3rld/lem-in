@@ -173,15 +173,27 @@ func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
 	visited[current.name] = false
 }
 
+//simulate ant movement
 func (af *AntFarm) SimulateAnts() []string {
 	if len(af.paths) == 0 {
 		return nil
 	}
 
+	//find shortest path possible
 	shortestPath :=af.paths[0]
 	for _, path := range af.paths {
 		if len(path) < len(shortestPath) {
 			shortestPath = path
 		}
+	}
+
+	moves := make([]string, 0)
+	antPositions := make(map[int]int) // ant number -> position in path
+
+	currentTurn := make([]string, 0)
+	antNum := 1
+
+	for len(antPositions) > 0 || antNum <= af.numAnts {
+		currentTurn = make([]string, 0)
 	}
 }
