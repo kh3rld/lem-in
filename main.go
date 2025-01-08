@@ -51,5 +51,26 @@ func (af *AntFarm) ParseInput(filename string) error {
 	}
 	af.numAnts = numAnts
 
+	//parse rooms and links
+	parsingRooms := true
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		if strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "##") {
+			continue
+		}
+
+		//handling special commands
+		if line == "##start" || line == "##end" {
+			if !scanner.Scan() {
+				return fmt.Errorf("ERROR: invalid data format, missing room after %s", line)
+			}
+			roomLine := scanner.Text()
+			if err := af.ParseRoom(roomLine, line == "##start"); err != nil {
+				return err
+			}
+			continue
+		}
+	}
 	return nil
 }
