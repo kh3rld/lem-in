@@ -156,21 +156,21 @@ func (af *AntFarm) FindPaths() {
 }
 
 func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
-	visited[current.name] = true
-	path = append(path, current.name)
+    visited[current.name] = true
+    path = append(path, current.name)
 
-	if current == af.endRoom {
-		pathCopy := make([]string, len(path))
-		copy(pathCopy, path)
-		copy(pathCopy, path)
-	} else {
-		for _, next := range current.connections {
-			if !visited[next.name] {
-				af.Dfs(next, visited, path)
-			}
-		}
-	}
-	visited[current.name] = false
+    if current == af.endRoom {
+        pathCopy := make([]string, len(path))
+        copy(pathCopy, path)
+        af.paths = append(af.paths, pathCopy)  // Fixed: properly append the path
+    } else {
+        for _, next := range current.connections {
+            if !visited[next.name] {
+                af.Dfs(next, visited, path)
+            }
+        }
+    }
+    visited[current.name] = false
 }
 
 // simulate ant movement
