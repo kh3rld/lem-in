@@ -85,7 +85,7 @@ func (af *AntFarm) ParseInput(filename string) error {
 	return nil
 }
 
-func (af *AntFarm) ParseRoom (line string, isStart bool) error {
+func (af *AntFarm) ParseRoom(line string, isStart bool) error {
 	parts := strings.Fields(line)
 	if len(parts) != 3 {
 		return fmt.Errorf("ERROR: invalid data format, invalid room name")
@@ -106,11 +106,11 @@ func (af *AntFarm) ParseRoom (line string, isStart bool) error {
 		return fmt.Errorf("ERROR: invalid data format, invalid y co-ordinate")
 	}
 
-	room :=  &Room {
-		name: name,
-		x: x,
-		y: y,
-		isStart: isStart,
+	room := &Room{
+		name:        name,
+		x:           x,
+		y:           y,
+		isStart:     isStart,
 		connections: make([]*Room, 0),
 	}
 	if isStart {
@@ -123,7 +123,7 @@ func (af *AntFarm) ParseRoom (line string, isStart bool) error {
 	return nil
 }
 
-//parslink parses a link line and adds the conections
+// parslink parses a link line and adds the conections
 func (af *AntFarm) Parselink(line string) error {
 	parts := strings.Split(line, "-")
 	if len(parts) != 2 {
@@ -134,7 +134,7 @@ func (af *AntFarm) Parselink(line string) error {
 	room2, exists2 := af.rooms[parts[1]]
 
 	if !exists1 || !exists2 {
-		return  fmt.Errorf("ERROR: invalid data format, link to unknown room")
+		return fmt.Errorf("ERROR: invalid data format, link to unknown room")
 	}
 
 	//validate if connection exists
@@ -147,4 +147,10 @@ func (af *AntFarm) Parselink(line string) error {
 	room1.connections = append(room1.connections, room2)
 	room2.connections = append(room2.connections, room1)
 	return nil
+}
+
+func (af *AntFarm) findPaths() {
+	visited := make(map[string]bool)
+	currentPath := make([]string, 0)
+	af.dfs(af.startRoom, visited, currentPath)
 }
