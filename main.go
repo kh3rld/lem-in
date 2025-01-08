@@ -158,7 +158,7 @@ func (af *AntFarm) FindPaths() {
 func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
 	visited[current.name] = true
 	path = append(path, current.name)
-	
+
 	if current == af.endRoom {
 		pathCopy := make([]string, len(path))
 		copy(pathCopy, path)
@@ -173,14 +173,14 @@ func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
 	visited[current.name] = false
 }
 
-//simulate ant movement
+// simulate ant movement
 func (af *AntFarm) SimulateAnts() []string {
 	if len(af.paths) == 0 {
 		return nil
 	}
 
 	//find shortest path possible
-	shortestPath :=af.paths[0]
+	shortestPath := af.paths[0]
 	for _, path := range af.paths {
 		if len(path) < len(shortestPath) {
 			shortestPath = path
@@ -195,5 +195,18 @@ func (af *AntFarm) SimulateAnts() []string {
 
 	for len(antPositions) > 0 || antNum <= af.numAnts {
 		currentTurn = make([]string, 0)
+
+		//move existing ants
+		for ant := 1; ant < antNum; ant++ {
+			if pos, exists := antPositions[ant]; exists {
+                if pos < len(shortestPath)-1 {
+                    antPositions[ant]++
+                    currentTurn = append(currentTurn, fmt.Sprintf("L%d-%s", 
+                        ant, shortestPath[antPositions[ant]]))
+                } else {
+                    delete(antPositions, ant)
+                }
+            }
+		}
 	}
 }
