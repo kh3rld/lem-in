@@ -233,5 +233,10 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	
+	content,  err := os.ReadFile(os.Args[1])
+	if err != nil {
+		fmt.Printf("Error reading file: %v\n", err)
+		return
+	}
+	fmt.Println(string(content))
 }
