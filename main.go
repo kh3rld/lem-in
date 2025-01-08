@@ -221,3 +221,17 @@ func (af *AntFarm) SimulateAnts() []string {
 	return moves
 }
 
+func main() {
+
+	if len(os.Args) != 2 {
+		fmt.Println("Usage: go run . [filename]")
+		return
+	}
+
+	farm := NewAntFarm()
+	if err := farm.ParseInput(os.Args[1]); err != nil {
+		fmt.Println(err)
+		return
+	}
+	
+}
