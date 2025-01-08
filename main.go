@@ -35,54 +35,68 @@ func NewAntFarm() *AntFarm {
 
 // validate the input file
 func (af *AntFarm) ParseInput(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return fmt.Errorf("error opening file: %v", err)
-	}
-	defer file.Close()
+    file, err := os.Open(filename)
+    if err != nil {
+        return fmt.Errorf("error opening file: %v", err)
+    }
+    defer file.Close()
 
-	scanner := bufio.NewScanner(file)
-	if !scanner.Scan() {
-		return fmt.Errorf("ERROR: invalid data format, empty file")
-	}
-	numAnts, err := strconv.Atoi(scanner.Text())
-	if err != nil || numAnts == 0 {
-		return fmt.Errorf("ERROR: invalid data format, invalid number of ants")
-	}
-	af.numAnts = numAnts
+    scanner := bufio.NewScanner(file)
+    if !scanner.Scan() {
+        return fmt.Errorf("ERROR: invalid data format, empty file")
+    }
+    numAnts, err := strconv.Atoi(scanner.Text())
+    if err != nil || numAnts <= 0 {
+        return fmt.Errorf("ERROR: invalid data format, invalid number of ants")
+    }
+    af.numAnts = numAnts
 
-	//parse rooms and links
-	parsingRooms := true
-	for scanner.Scan() {
-		line := scanner.Text()
+    parsingRooms := true
+    for scanner.Scan() {
+        line := scanner.Text()
 
-		if strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "##") {
-			continue
-		}
+        if strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "##") {
+            continue
+        }
 
-		//handling special commands
-		if line == "##start" || line == "##end" {
-			if !scanner.Scan() {
-				return fmt.Errorf("ERROR: invalid data format, missing room after %s", line)
-			}
-			roomLine := scanner.Text()
-			if err := af.ParseRoom(roomLine, line == "##start"); err != nil {
-				return err
-			}
-			continue
-		}
+        if line == "##start" || line == "##end" {
+            if !scanner.Scan() {
+                return fmt.Errorf("ERROR: invalid data format, missing room after %s", line)
+            }
+            roomLine := scanner.Text()
+            if err := af.ParseRoom(roomLine, line == "##start"); err != nil {
+                return err
+            }
+            continue
+        }
 
-		//If line contains a -, parse the links
-		if strings.Contains(line, "-") {
-			if parsingRooms {
-				parsingRooms = false
-			}
-			if err := af.Parselink(line); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+        if strings.Contains(line, "-") {
+            if parsingRooms {
+                parsingRooms = false
+            }
+            if err := af.Parselink(line); err != nil {
+                return err
+            }
+            continue
+        }
+
+        // Added handling for regular rooms
+        if parsingRooms && len(line) > 0 {
+            if err := af.ParseRoom(line, false); err != nil {
+                return err
+            }
+        }
+    }
+
+    // Validate start and end rooms exist
+    if af.startRoom == nil {
+        return fmt.Errorf("ERROR: invalid data format, no start room found")
+    }
+    if af.endRoom == nil {
+        return fmt.Errorf("ERROR: invalid data format, no end room found")
+    }
+
+    return nil
 }
 
 func (af *AntFarm) ParseRoom(line string, isStart bool) error {
