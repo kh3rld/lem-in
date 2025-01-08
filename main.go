@@ -143,4 +143,8 @@ func (af *AntFarm) Parselink(line string) error {
 			return fmt.Errorf("ERROR: invalid data format,duplicate link")
 		}
 	}
+
+	room1.connections = append(room1.connections, room2)
+	room2.connections = append(room2.connections, room1)
+	return nil
 }
