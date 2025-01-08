@@ -172,3 +172,16 @@ func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
 	}
 	visited[current.name] = false
 }
+
+func (af *AntFarm) SimulateAnts() []string {
+	if len(af.paths) == 0 {
+		return nil
+	}
+
+	shortestPath :=af.paths[0]
+	for _, path := range af.paths {
+		if len(path) < len(shortestPath) {
+			shortestPath = path
+		}
+	}
+}
