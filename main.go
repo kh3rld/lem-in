@@ -71,6 +71,16 @@ func (af *AntFarm) ParseInput(filename string) error {
 			}
 			continue
 		}
+
+		//If line contains a -, parse the links
+		if strings.Contains(line, "-") {
+			if parsingRooms {
+				parsingRooms = false
+			}
+			if err := af.Parselink(line); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
@@ -82,7 +92,7 @@ func (af *AntFarm) ParseRoom (line string, isStart bool) error {
 	}
 
 	name := parts[0]
-	if strings.HasPrefix(name, "L") || strings.HasPrefix("#") {
+	if strings.HasPrefix(name, "L") || strings.HasPrefix(name, "#") {
 		return fmt.Errorf("ERROR: invalid data format, invalid room name")
 	}
 
@@ -108,6 +118,7 @@ func (af *AntFarm) ParseRoom (line string, isStart bool) error {
 			return fmt.Errorf("ERROR: invalid data format, multipla start rooms")
 		}
 		af.startRoom = room
-		return nil
 	}
+	af.rooms[name] = room
+	return nil
 }
