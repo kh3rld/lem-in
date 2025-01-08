@@ -194,8 +194,6 @@ func (af *AntFarm) SimulateAnts() []string {
 	antNum := 1
 
 	for len(antPositions) > 0 || antNum <= af.numAnts {
-		currentTurn = make([]string, 0)
-
 		//move existing ants
 		for ant := 1; ant < antNum; ant++ {
 			if pos, exists := antPositions[ant]; exists {
@@ -208,5 +206,18 @@ func (af *AntFarm) SimulateAnts() []string {
                 }
             }
 		}
+
+		// add new ant if posssible
+		if antNum <= af.numAnts {
+			antPositions[antNum] = 0
+			currentTurn = append(currentTurn, fmt.Sprintf("L%d-%s", antNum, shortestPath[0]))
+			antNum++
+		}
+
+		if len(currentTurn) > 0 {
+			moves = append(moves, strings.Join(currentTurn, " "))
+		}
 	}
+	return moves
 }
+
