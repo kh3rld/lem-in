@@ -241,30 +241,12 @@ func (af *AntFarm) bfs(residualGraph map[string]map[string]int) []string {
 	return []string{}
 }
 
-func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
-	visited[current.name] = true
-	path = append(path, current.name)
-
-	if current == af.endRoom {
-		pathCopy := make([]string, len(path))
-		copy(pathCopy, path)
-		af.paths = append(af.paths, pathCopy)
-	} else {
-		for _, next := range current.connections {
-			if !visited[next.name] {
-				af.Dfs(next, visited, path)
-			}
-		}
-	}
-	visited[current.name] = false
-}
-
 func (af *AntFarm) SimulateAnts() []string {
     if len(af.paths) == 0 {
         return nil
     }
 
-    // Sort paths by length
+   // Sort paths by length
     sort.Slice(af.paths, func(i, j int) bool {
         return len(af.paths[i]) < len(af.paths[j])
     })
