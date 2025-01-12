@@ -260,97 +260,136 @@ func (af *AntFarm) Dfs(current *Room, visited map[string]bool, path []string) {
 }
 
 func (af *AntFarm) SimulateAnts() []string {
-	if len(af.paths) == 0 {
-		return nil
-	}
+    if len(af.paths) == 0 {
+        return nil
+    }
 
-	// Sort paths by length
-	sort.Slice(af.paths, func(i, j int) bool {
-		return len(af.paths[i]) < len(af.paths[j])
-	})
+    // Sort paths by length
+    sort.Slice(af.paths, func(i, j int) bool {
+        return len(af.paths[i]) < len(af.paths[j])
+    })
 
-	// Track ants in each path
-	type PathInfo struct {
-		path     []string
-		antCount int
-	}
-	pathInfos := make([]PathInfo, len(af.paths))
-	for i, path := range af.paths {
-		pathInfos[i] = PathInfo{path: path, antCount: 0}
-	}
+    // Calculate flow distribution
+    type PathFlow struct {
+        path     []string
+        antCount int
+        length   int
+    }
 
-	// Assign ants to paths
-	antPaths := make([]int, af.numAnts+1)
-	for ant := 1; ant <= af.numAnts; ant++ {
-		bestPath := 0
-		bestCost := math.MaxInt32
+    // Initialize path flows
+    flows := make([]PathFlow, len(af.paths))
+    for i, path := range af.paths {
+        flows[i] = PathFlow{
+            path:     path,
+            antCount: 0,
+            length:   len(path) - 1, // -1 because we don't count start room
+        }
+    }
 
-		for i := range pathInfos {
-			cost := len(pathInfos[i].path) + pathInfos[i].antCount - 1 // -1 because we don't count start room
-			if cost < bestCost {
-				bestCost = cost
-				bestPath = i
-			}
-		}
+    // Distribute ants optimally
+    remainingAnts := af.numAnts
+    for remainingAnts > 0 {
+        // Find best path for next ant
+        bestPath := -1
+        minTotalTime := math.MaxInt32
 
-		antPaths[ant] = bestPath
-		pathInfos[bestPath].antCount++
-	}
+        for i := range flows {
+            // Calculate completion time if we add an ant to this path
+            completionTime := flows[i].length + flows[i].antCount
+            if completionTime < minTotalTime {
+                minTotalTime = completionTime
+                bestPath = i
+            }
+        }
 
-	// Simulate movements
-	moves := make([]string, 0)
-	antPositions := make(map[int]int) // ant -> position in path
-	finished := make(map[int]bool)    // tracks finished ants
+        if bestPath == -1 {
+            break
+        }
 
-	for len(finished) < af.numAnts {
-		currentTurn := make([]string, 0)
-		roomOccupied := make(map[string]bool)
+        flows[bestPath].antCount++
+        remainingAnts--
+    }
 
-		// Process each ant
-		for ant := 1; ant <= af.numAnts; ant++ {
-			if finished[ant] {
-				continue
-			}
+    // Simulate movements
+    moves := make([]string, 0)
+    type AntState struct {
+        pathIndex  int
+        position   int
+        completed  bool
+    }
+    antStates := make(map[int]*AntState)
+    currentAnt := 1
 
-			pathIndex := antPaths[ant]
-			path := af.paths[pathIndex]
-			pos, exists := antPositions[ant]
+    // Calculate maximum possible turns
+    maxTurns := flows[0].length + af.numAnts
 
-			if !exists {
-				// Start new ant from start room
-				nextRoom := path[1] // First room after start
-				if !roomOccupied[nextRoom] {
-					antPositions[ant] = 1
-					roomOccupied[nextRoom] = true
-					currentTurn = append(currentTurn,
-						fmt.Sprintf("L%d-%s", ant, nextRoom))
-				}
-			} else {
-				// Move existing ant
-				if pos < len(path)-1 {
-					nextRoom := path[pos+1]
-					if !roomOccupied[nextRoom] {
-						antPositions[ant] = pos + 1
-						if nextRoom != af.endRoom.name {
-							roomOccupied[nextRoom] = true
-						}
-						currentTurn = append(currentTurn,
-							fmt.Sprintf("L%d-%s", ant, nextRoom))
-					}
-				}
-				if pos == len(path)-1 {
-					finished[ant] = true
-				}
-			}
-		}
+    for turn := 0; turn < maxTurns; turn++ {
+        currentTurn := make([]string, 0)
+        roomOccupied := make(map[string]bool)
 
-		if len(currentTurn) > 0 {
-			sort.Strings(currentTurn)
-			moves = append(moves, strings.Join(currentTurn, " "))
-		}
-	}
+        // Move existing ants first
+        for ant := 1; ant <= currentAnt-1; ant++ {
+            state, exists := antStates[ant]
+            if !exists || state.completed {
+                continue
+            }
 
-	return moves
+            path := flows[state.pathIndex].path
+            if state.position < len(path)-1 {
+                nextRoom := path[state.position+1]
+                if !roomOccupied[nextRoom] || nextRoom == af.endRoom.name {
+                    state.position++
+                    if nextRoom != af.endRoom.name {
+                        roomOccupied[nextRoom] = true
+                    }
+                    currentTurn = append(currentTurn,
+                        fmt.Sprintf("L%d-%s", ant, nextRoom))
+                    if state.position == len(path)-1 {
+                        state.completed = true
+                    }
+                }
+            }
+        }
+
+        // Try to start new ants
+        for i := range flows {
+            if flows[i].antCount > 0 {
+                nextRoom := flows[i].path[1] // First room after start
+                if !roomOccupied[nextRoom] {
+                    antStates[currentAnt] = &AntState{
+                        pathIndex: i,
+                        position:  1,
+                        completed: false,
+                    }
+                    roomOccupied[nextRoom] = true
+                    currentTurn = append(currentTurn,
+                        fmt.Sprintf("L%d-%s", currentAnt, nextRoom))
+                    currentAnt++
+                    flows[i].antCount--
+                }
+            }
+        }
+
+        if len(currentTurn) > 0 {
+            sort.Strings(currentTurn)
+            moves = append(moves, strings.Join(currentTurn, " "))
+        }
+
+        // Check if all ants have reached the end
+        allDone := true
+        for ant := 1; ant <= af.numAnts; ant++ {
+            state, exists := antStates[ant]
+            if !exists || !state.completed {
+                allDone = false
+                break
+            }
+        }
+        if allDone {
+            break
+        }
+    }
+
+    return moves
 }
 
 func main() {
