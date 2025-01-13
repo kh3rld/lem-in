@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -241,137 +240,133 @@ func (af *AntFarm) bfs(residualGraph map[string]map[string]int) []string {
 	return []string{}
 }
 
+// SimulateAnts optimizes the distribution of ants across paths
 func (af *AntFarm) SimulateAnts() []string {
-    if len(af.paths) == 0 {
-        return nil
-    }
+	if len(af.paths) == 0 {
+		return nil
+	}
 
-   // Sort paths by length
-    sort.Slice(af.paths, func(i, j int) bool {
-        return len(af.paths[i]) < len(af.paths[j])
-    })
+	// Sort paths by length
+	sort.Slice(af.paths, func(i, j int) bool {
+		return len(af.paths[i]) < len(af.paths[j])
+	})
 
-    // Calculate flow distribution
-    type PathFlow struct {
-        path     []string
-        antCount int
-        length   int
-    }
+	// Calculate optimal distribution using turn estimation
+	type PathInfo struct {
+		path     []string
+		length   int
+		capacity int
+	}
 
-    // Initialize path flows
-    flows := make([]PathFlow, len(af.paths))
-    for i, path := range af.paths {
-        flows[i] = PathFlow{
-            path:     path,
-            antCount: 0,
-            length:   len(path) - 1, // -1 because we don't count start room
-        }
-    }
+	paths := make([]PathInfo, len(af.paths))
+	for i, path := range af.paths {
+		paths[i] = PathInfo{
+			path:     path,
+			length:   len(path) - 1,
+			capacity: 0,
+		}
+	}
 
-    // Distribute ants optimally
-    remainingAnts := af.numAnts
-    for remainingAnts > 0 {
-        // Find best path for next ant
-        bestPath := -1
-        minTotalTime := math.MaxInt32
+	// Calculate optimal turn count using binary search
+	left, right := 1, af.numAnts+len(af.paths[0])-1
+	var optimalTurns int
+	var finalDistribution []PathInfo
 
-        for i := range flows {
-            // Calculate completion time if we add an ant to this path
-            completionTime := flows[i].length + flows[i].antCount
-            if completionTime < minTotalTime {
-                minTotalTime = completionTime
-                bestPath = i
-            }
-        }
+	for left <= right {
+		mid := (left + right) / 2
+		currentPaths := make([]PathInfo, len(paths))
+		copy(currentPaths, paths)
 
-        if bestPath == -1 {
-            break
-        }
+		// Calculate how many ants we can send through each path
+		remainingAnts := af.numAnts
+		for i := range currentPaths {
+			if remainingAnts <= 0 {
+				break
+			}
+			// Maximum ants that can finish in 'mid' turns through this path
+			maxAnts := mid - currentPaths[i].length + 1
+			if maxAnts > 0 {
+				antsToSend := min(remainingAnts, maxAnts)
+				currentPaths[i].capacity = antsToSend
+				remainingAnts -= antsToSend
+			}
+		}
 
-        flows[bestPath].antCount++
-        remainingAnts--
-    }
+		if remainingAnts <= 0 {
+			// This distribution works - try to optimize further
+			optimalTurns = mid
+			finalDistribution = make([]PathInfo, len(currentPaths))
+			copy(finalDistribution, currentPaths)
+			right = mid - 1
+		} else {
+			// Need more turns
+			left = mid + 1
+		}
+	}
 
-    // Simulate movements
-    moves := make([]string, 0)
-    type AntState struct {
-        pathIndex  int
-        position   int
-        completed  bool
-    }
-    antStates := make(map[int]*AntState)
-    currentAnt := 1
+	// Generate moves based on optimal distribution
+	moves := make([]string, 0)
+	antNum := 1
+	antStates := make(map[int]struct {
+		pathIndex int
+		position  int
+	})
 
-    // Calculate maximum possible turns
-    maxTurns := flows[0].length + af.numAnts
+	for turn := 0; turn < optimalTurns; turn++ {
+		currentMoves := make([]string, 0)
+		occupied := make(map[string]bool)
 
-    for turn := 0; turn < maxTurns; turn++ {
-        currentTurn := make([]string, 0)
-        roomOccupied := make(map[string]bool)
+		// Move existing ants
+		for ant := 1; ant < antNum; ant++ {
+			if state, exists := antStates[ant]; exists {
+				path := finalDistribution[state.pathIndex].path
+				if state.position < len(path)-1 {
+					nextRoom := path[state.position+1]
+					if !occupied[nextRoom] || nextRoom == af.endRoom.name {
+						state.position++
+						antStates[ant] = state
+						if nextRoom != af.endRoom.name {
+							occupied[nextRoom] = true
+						}
+						currentMoves = append(currentMoves,
+							fmt.Sprintf("L%d-%s", ant, nextRoom))
+					}
+				}
+			}
+		}
 
-        // Move existing ants first
-        for ant := 1; ant <= currentAnt-1; ant++ {
-            state, exists := antStates[ant]
-            if !exists || state.completed {
-                continue
-            }
+		// Start new ants
+		for i := range finalDistribution {
+			if finalDistribution[i].capacity > 0 {
+				nextRoom := finalDistribution[i].path[1]
+				if !occupied[nextRoom] {
+					antStates[antNum] = struct {
+						pathIndex int
+						position  int
+					}{i, 1}
+					occupied[nextRoom] = true
+					currentMoves = append(currentMoves,
+						fmt.Sprintf("L%d-%s", antNum, nextRoom))
+					antNum++
+					finalDistribution[i].capacity--
+				}
+			}
+		}
 
-            path := flows[state.pathIndex].path
-            if state.position < len(path)-1 {
-                nextRoom := path[state.position+1]
-                if !roomOccupied[nextRoom] || nextRoom == af.endRoom.name {
-                    state.position++
-                    if nextRoom != af.endRoom.name {
-                        roomOccupied[nextRoom] = true
-                    }
-                    currentTurn = append(currentTurn,
-                        fmt.Sprintf("L%d-%s", ant, nextRoom))
-                    if state.position == len(path)-1 {
-                        state.completed = true
-                    }
-                }
-            }
-        }
+		if len(currentMoves) > 0 {
+			sort.Strings(currentMoves)
+			moves = append(moves, strings.Join(currentMoves, " "))
+		}
+	}
 
-        // Try to start new ants
-        for i := range flows {
-            if flows[i].antCount > 0 {
-                nextRoom := flows[i].path[1] // First room after start
-                if !roomOccupied[nextRoom] {
-                    antStates[currentAnt] = &AntState{
-                        pathIndex: i,
-                        position:  1,
-                        completed: false,
-                    }
-                    roomOccupied[nextRoom] = true
-                    currentTurn = append(currentTurn,
-                        fmt.Sprintf("L%d-%s", currentAnt, nextRoom))
-                    currentAnt++
-                    flows[i].antCount--
-                }
-            }
-        }
+	return moves
+}
 
-        if len(currentTurn) > 0 {
-            sort.Strings(currentTurn)
-            moves = append(moves, strings.Join(currentTurn, " "))
-        }
-
-        // Check if all ants have reached the end
-        allDone := true
-        for ant := 1; ant <= af.numAnts; ant++ {
-            state, exists := antStates[ant]
-            if !exists || !state.completed {
-                allDone = false
-                break
-            }
-        }
-        if allDone {
-            break
-        }
-    }
-
-    return moves
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func main() {
