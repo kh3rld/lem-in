@@ -268,7 +268,8 @@ func (af *AntFarm) SimulateAnts() []string {
 	}
 
 	// Calculate optimal turn count using binary search
-	left, right := 1, af.numAnts+len(af.paths[0])-1
+	left:= 1
+	right := af.numAnts+len(af.paths[0])-1
 	var optimalTurns int
 	var finalDistribution []PathInfo
 
