@@ -146,3 +146,15 @@ func (af *AntFarm) ParseRoom(line string, isStart bool, isEnd bool) error {
 	af.rooms[name] = room
 	return nil
 }
+
+// Validates and Parses data of how rooms are linked
+func (af *AntFarm) Parselink(line string) error {
+	parts := strings.Split(line, "-") 
+	if len(parts) != 2 {
+		return fmt.Errorf("ERROR: invalid data format, invalid link format")
+	}
+
+	room1, exists1 := af.rooms[parts[0]]
+	room2, exists2 := af.rooms[parts[1]]
+
+}
