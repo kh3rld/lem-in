@@ -101,5 +101,27 @@ func (af *AntFarm) ParseInput(filename string) (string, error) {
 
 // Validates and Parses Room data into the relevant data structures
 func (as *AntFarm) ParseRoom(line string, isStart bool, isEnd bool) error {
+	parts := strings.Fields(line)
+	if len(parts) != 3 {
+		return fmt.Errorf("ERROR: invalid data format, invalid room defination")
+	}
+
+	name := parts[0]
+	if strings.HasPrefix(name, "L") || strings.HasPrefix(name, "#") {
+		return fmt.Errorf("ERROR: invalid data format, invalid room name")
+	}
+
+	x, err := strconv.Atoi(parts[1])
+	if err !=  nil {
+		return fmt.Errorf("ERROR: invalid data format, invalid x coordinate")
+	}
+
+
+	y, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return fmt.Errorf("ERROR: invalid data format, invalid y coordinate")
+	}
 	return nil
 }
+
+
