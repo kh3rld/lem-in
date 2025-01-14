@@ -121,6 +121,15 @@ func (as *AntFarm) ParseRoom(line string, isStart bool, isEnd bool) error {
 	if err != nil {
 		return fmt.Errorf("ERROR: invalid data format, invalid y coordinate")
 	}
+
+	room := &Room {
+		name: name, 
+		x: x,
+		y: y,
+		isStart: isStart,
+		isEnd: isEnd,
+		connections: make([]*Room, 0),
+	}
 	return nil
 }
 
