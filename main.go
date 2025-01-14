@@ -64,14 +64,37 @@ func (af *AntFarm) ParseInput(filename string) (string, error) {
 		if strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "##") {
 			continue
 		}
-		
+
 		if line == "##end" {
 			isEnd = true
 			continue
 		}
 
 		if strings.Contains(line, "-") {
-			if parsingRooms
+			if parsingRooms {
+				parsingRooms = false
+			}
+			if err := af.Parselink(line); err != nil {
+				return "", err
+			}
+			continue
+		}
+
+		if parsingRooms && len(line) > 0 {
+			if err := af.ParseRoom(line, isStart, isEnd); err != nil {
+				return "", err
+			}
+			isStart = false
+			isEnd = false
 		}
 	}
+
+	if af.startRoom == nil {
+		return "", fmt.Errorf("ERROR: invalid data format, no end room found")
+	}
+	if af.endRoom == nil {
+		return "", fmt.Errorf("ERROR: invalid data format, no end room found")
+	}
+
+	return fileContent.String(), nil
 }
