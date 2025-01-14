@@ -173,3 +173,7 @@ func (af *AntFarm) Parselink(line string) error {
 
 }
 
+// EdmondsKarp implements the Edmonds-Karp algorithm to find augmnenting paths
+func (af *AntFarm) EdmondsKarp() {
+	// Implementation
+}
