@@ -98,3 +98,8 @@ func (af *AntFarm) ParseInput(filename string) (string, error) {
 
 	return fileContent.String(), nil
 }
+
+// Validates and Parses Room data into the relevant data structures
+func (as *AntFarm) ParseRoom(line string, isStart bool, isEnd bool) error {
+	return nil
+}
