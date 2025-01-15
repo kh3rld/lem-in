@@ -1,5 +1,5 @@
 # Lem-in
-![](https://img.freepik.com/free-vector/sticker-template-with-many-ants-walking-branch-isolated_1308-71825.jpg?ga=GA1.1.1553843546.1721645701&semt=ais_hybrid)
+![](https://img.freepik.com/free-photo/3d-cartoon-wild-animal-nature_23-2151746842.jpg?ga=GA1.1.1553843546.1721645701&semt=ais_hybrid)
 
 A Go implementation of an ant farm pathfinding simulator that finds the optimal paths for ants to traverse from start to end room while avoiding congestion.
 
