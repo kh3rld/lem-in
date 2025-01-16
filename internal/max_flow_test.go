@@ -70,7 +70,7 @@ func TestEdmondsKarp(t *testing.T) {
 
 			// 	Verify number of paths
 			if len(af.paths) != len(tt.expectedPaths) {
-				t.Errorf("EdmondsKarp() found %d paths, want %d paths", len(af.paths), len(tt.expectedPahts))
+				t.Errorf("EdmondsKarp() found %d paths, want %d paths", len(af.paths), len(tt.expectedPaths))
 			}
 
 			// Verify each path
