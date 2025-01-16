@@ -50,7 +50,15 @@ func (af *AntFarm) bfs(residualGraph map[string]map[string]int) []string {
 				visited[next] = true
 				parent[next] = current
 				queue = append(queue, next)
-				
+				if next == af.endRoom.name {
+					// Construct Path
+					path := []string{next}
+					for p := current; p != af.startRoom.name; p = parent[p] {
+						path = append([]string{p}, path...)
+					}
+					path = append([]string{af.startRoom.name}, path...)
+					return path
+				}
 			}
 		}
 	}
