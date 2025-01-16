@@ -5,10 +5,7 @@ import (
 	"testing"
 )
 
-func Testbfs(t *testing.T) {
-}
-
-func TestEdmondsKarp(t *testing.T) {
+func TestBfs(t *testing.T) {
 	tests := []struct {
 		name string
 		graph map[string]map[string]int
@@ -35,5 +32,9 @@ func TestEdmondsKarp(t *testing.T) {
 			}
 		})
 	}
-	
 }
+
+// func TestEdmondsKarp(t *testing.T) {
+	
+// }
+
