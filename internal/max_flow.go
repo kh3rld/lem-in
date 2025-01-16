@@ -42,5 +42,10 @@ func (af *AntFarm) bfs(residualGraph map[string]map[string]int) []string {
 	queue := []string{af.startRoom.name}
 	visited[af.startRoom.name] = true
 
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
+		
+	}
 	return []string{}
 }
