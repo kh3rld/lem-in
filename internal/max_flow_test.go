@@ -46,4 +46,27 @@ func TestEdmondsKarp(t *testing.T) {
 		{"Simple Linear Path", map[string]*Room{"start" :{},"A": {},"end": {},}, "start","end", map[string][]string{"start": {"A"}, "A": {"end"},}, [][]string{{"start", "A", "end"},},},
 		{"Two Parallel Paths", map[string]*Room{"start": {}, "A" : {}, "B": {}, "end": {},}, "start", "end", map[string][]string{"start": {"A", "B"}, "A": {"end"}, "B": {"end"}, },[][]string{{"start", "A", "end"}, {"start", "B", "end"},},},
 	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Build the and farm
+			af := &AntFarm{
+				rooms: tt.rooms,
+				startRoom: tt.rooms[tt.startRoom],
+				endRoom: tt.rooms[tt.endRoom],
+			}
+
+			// Setuo connections
+			for source, destinations ;= range tt.connections {
+				sourceRoom := af.rooms[source]
+				for _, dest := range desitnations {
+					destRoom := af.rooms[dest]
+					sourceRoom.connections = append(sourceRoom.connections, destRoom)
+				}
+			}
+
+			// Run Edmonds-Karp
+			af.EdmondsKarp()
+		})
+	}
 }
