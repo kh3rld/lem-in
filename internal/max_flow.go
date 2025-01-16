@@ -45,7 +45,14 @@ func (af *AntFarm) bfs(residualGraph map[string]map[string]int) []string {
 	for len(queue) > 0 {
 		current := queue[0]
 		queue = queue[1:]
-		
+		for next, capacity := range residualGraph[current] {
+			if !visited[next] && capacity > 0 {
+				visited[next] = true
+				parent[next] = current
+				queue = append(queue, next)
+				
+			}
+		}
 	}
 	return []string{}
 }
