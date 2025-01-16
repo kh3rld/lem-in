@@ -8,7 +8,7 @@ import (
 func (af *AntFarm) Parselink(line string) error {
 	parts := strings.Split(line, "-")
 	// Add in Parselink
-	if parts[0] == pada70f22rts[1] {
+	if parts[0] == parts[1] {
 		return fmt.Errorf("ERROR: invalid data format, room cannot link to itself")
 	}
 	if len(parts) != 2 {
