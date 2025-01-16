@@ -27,7 +27,7 @@ func (af *AntFarm) EdmondsKarp() {
 		// Update residual graph
 		for i := 0; i < len(path)-1; i++ {
 			u, v := path[i], path[i+1]
-			residualGraph[u][u]--		 // Decrease forward edge
+			residualGraph[u][v]--		 // Decrease forward edge
 			if residualGraph[v][u] == 0 { // Add reverse edge if it doesn't exist
 				residualGraph[v][u] = 1
 			}
