@@ -57,9 +57,9 @@ func TestEdmondsKarp(t *testing.T) {
 			}
 
 			// Setuo connections
-			for source, destinations ;= range tt.connections {
+			for source, destinations := range tt.connections {
 				sourceRoom := af.rooms[source]
-				for _, dest := range desitnations {
+				for _, dest := range destinations {
 					destRoom := af.rooms[dest]
 					sourceRoom.connections = append(sourceRoom.connections, destRoom)
 				}
@@ -67,6 +67,31 @@ func TestEdmondsKarp(t *testing.T) {
 
 			// Run Edmonds-Karp
 			af.EdmondsKarp()
+
+			// 	Verify number of paths
+			if len(af.paths) != len(tt.expectedPaths) {
+				t.Errorf("EdmondsKarp() found %d paths, want %d paths", len(af.paths), len(tt.expectedPahts))
+			}
+
+			// Verify each path
+			pathsFound := make(map[string]bool)
+			for _, path := range af.paths {
+				pathStr := ""
+				for _, room := range path {
+					pathStr += room
+				}
+				pathsFound[pathStr] = true
+			}
+
+			for _, expectedPath := range tt.expectedPaths {
+				pathStr := ""
+				for _, room := range expectedPath {
+					pathStr += room
+				}
+				if !pathsFound[pathStr] {
+					t.Errorf("Expected path %v not found in results", expectedPath)
+				}
+			}
 		})
 	}
 }
