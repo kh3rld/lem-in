@@ -9,4 +9,5 @@ func (af *AntFarm) EdmondsKarp() {
 // Bfs implements breath-first search to find shortest augmenting path
 func (af *AntFarm) bfs(residualGraph map[string]map[string]int) []string {
 	// function signature
+	return []string{}
 }
