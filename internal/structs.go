@@ -1,4 +1,5 @@
 package internal
+
 type Room struct {
 	name        string
 	x, y        int
@@ -17,4 +18,11 @@ type AntFarm struct {
 }
 type PathValidation struct {
 	visited map[string]bool
+}
+
+// initialise a new ant farm
+func NewAntFarm() *AntFarm {
+	return &AntFarm{
+		rooms: make(map[string]*Room),
+	}
 }
