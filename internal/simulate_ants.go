@@ -27,4 +27,16 @@ func (af *AntFarm) SimulateAnts() []string {
 			capacity: 0,
 		}
 	}
+
+	//calculate the optimal turn count using binary search
+	left := 1
+	right := af.numAnts+len(af.paths[0]) -1
+	var optimalTurns int
+	var finalDistribution []PathInfo
+
+	for left <= right {
+		mid := (left + right) / 2
+		currentPaths := make([]PathInfo, len(paths))
+		copy(currentPaths, paths)
+	}
 }
