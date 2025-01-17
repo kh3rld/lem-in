@@ -125,3 +125,61 @@ func TestFindOptimalTurns(t *testing.T) {
 		})
 	}
 }
+
+func TestGenerateMoves(t *testing.T) {
+	tests := []struct {
+		name        string
+		paths       []PathInfo
+		turns       int
+		numAnts     int
+		endRoomName string
+		expected    []string
+	}{
+		{
+			name: "Single ant, single path",
+			paths: []PathInfo{
+				{
+					path:     []string{"start", "room1", "end"},
+					length:   2,
+					capacity: 1,
+				},
+			},
+			turns:       2,
+			numAnts:     1,
+			endRoomName: "end",
+			expected:    []string{"L1-room1", "L1-end"},
+		},
+		{
+			name: "Multiple ants, multiple paths",
+			paths: []PathInfo{
+				{
+					path:     []string{"start", "room1", "end"},
+					length:   2,
+					capacity: 2,
+				},
+				{
+					path:     []string{"start", "room2", "end"},
+					length:   2,
+					capacity: 1,
+				},
+			},
+			turns:       3,
+			numAnts:     3,
+			endRoomName: "end",
+			expected: []string{
+				"L1-room1 L2-room2",
+				"L1-end L2-end L3-room1",
+				"L3-end",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := generateMoves(tt.paths, tt.turns, tt.numAnts, tt.endRoomName)
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("generateMoves() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
