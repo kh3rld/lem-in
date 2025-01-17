@@ -240,3 +240,59 @@ func TestMoveExistingAnts(t *testing.T) {
 		})
 	}
 }
+
+func TestStartNewAnts(t *testing.T) {
+	paths := []PathInfo{
+		{
+			path:     []string{"start", "room1", "end"},
+			length:   2,
+			capacity: 1,
+		},
+	}
+	
+	antStates := make(map[int]struct {
+		pathIndex int
+		position  int
+	})
+	antNum := 1
+	occupied := make(map[string]bool)
+	var currentMoves []string
+
+	tests := []struct {
+		name           string
+		expectedMoves  []string
+		expectedStates map[int]struct {
+			pathIndex int
+			position  int
+		}
+		expectedAntNum int
+	}{
+		{
+			name:          "Start new ant",
+			expectedMoves: []string{"L1-room1"},
+			expectedStates: map[int]struct {
+				pathIndex int
+				position  int
+			}{
+				1: {0, 1},
+			},
+			expectedAntNum: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			startNewAnts(paths, &antStates, &antNum, occupied, &currentMoves)
+			
+			if !reflect.DeepEqual(currentMoves, tt.expectedMoves) {
+				t.Errorf("startNewAnts() moves = %v, want %v", currentMoves, tt.expectedMoves)
+			}
+			if !reflect.DeepEqual(antStates, tt.expectedStates) {
+				t.Errorf("startNewAnts() states = %v, want %v", antStates, tt.expectedStates)
+			}
+			if antNum != tt.expectedAntNum {
+				t.Errorf("startNewAnts() antNum = %v, want %v", antNum, tt.expectedAntNum)
+			}
+		})
+	}
+}
