@@ -61,5 +61,17 @@ func TestEdmondsKarp(t *testing.T) {
 	tests[0].input.rooms["start"].connections = []*Room{tests[0].input.rooms["1"]}
 	tests[0].input.rooms["1"].connections = []*Room{tests[0].input.rooms["end"]}
 
+	// Create a graph with two possible disjoint paths:
+	// start -> a -> c -> end
+	// start -> b -> d -> end
+	tests[2].input.rooms["start"].connections = []*Room{
+		tests[2].input.rooms["a"],
+		tests[2].input.rooms["b"],
+	}
+	tests[2].input.rooms["a"].connections = []*Room{tests[2].input.rooms["c"]}
+	tests[2].input.rooms["b"].connections = []*Room{tests[2].input.rooms["d"]}
+	tests[2].input.rooms["c"].connections = []*Room{tests[2].input.rooms["end"]}
+	tests[2].input.rooms["d"].connections = []*Room{tests[2].input.rooms["end"]}
 
+	
 }
