@@ -114,6 +114,12 @@ func (af *AntFarm) SimulateAnts() []string {
 				}
 			}
 		}
+
+		if len(currentMoves) > 0 {
+			sort.Strings(currentMoves)
+			moves = append(moves, strings.Join(currentMoves, " "))
+		}
 	}
+	return moves
 
 }
