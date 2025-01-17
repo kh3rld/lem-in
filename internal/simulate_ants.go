@@ -18,4 +18,13 @@ func (af *AntFarm) SimulateAnts() []string {
 		length   int
 		capacity int
 	}
+
+	paths := make ([]PathInfo, len(af.paths))
+	for i, path := range af.paths {
+		paths[i] = PathInfo {
+			path: path,
+			length: len(path)- 1,
+			capacity: 0,
+		}
+	}
 }
