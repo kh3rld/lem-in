@@ -296,3 +296,63 @@ func TestStartNewAnts(t *testing.T) {
 		})
 	}
 }
+
+func TestSimulateAnts(t *testing.T) {
+	tests := []struct {
+		name     string
+		setup    func() *AntFarm
+		expected []string
+	}{
+		{
+			name: "Simple path with one ant",
+			setup: func() *AntFarm {
+				af := NewAntFarm()
+				af.numAnts = 1
+				af.paths = [][]string{
+					{"start", "room1", "end"},
+				}
+				af.endRoom = &Room{name: "end"}
+				return af
+			},
+			expected: []string{"L1-room1", "L1-end"},
+		},
+		{
+			name: "No paths available",
+			setup: func() *AntFarm {
+				af := NewAntFarm()
+				af.numAnts = 1
+				af.paths = [][]string{}
+				return af
+			},
+			expected: nil,
+		},
+		{
+			name: "Multiple paths with multiple ants",
+			setup: func() *AntFarm {
+				af := NewAntFarm()
+				af.numAnts = 3
+				af.paths = [][]string{
+					{"start", "room1", "end"},
+					{"start", "room2", "end"},
+				}
+				af.endRoom = &Room{name: "end"}
+				return af
+			},
+			expected: []string{
+				"L1-room1 L2-room2",
+				"L1-end L2-end L3-room1",
+				"L3-end",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			af := tt.setup()
+			result := af.SimulateAnts()
+			if !reflect.DeepEqual(result, tt.expected) {
+				t.Errorf("SimulateAnts() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
+}
