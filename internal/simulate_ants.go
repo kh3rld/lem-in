@@ -6,14 +6,6 @@ import (
 	"strings"
 )
 
-// PathInfo holds information about each path, including the path itself,
-// its length, and the capacity of ants that can use it.
-type PathInfo struct {
-	path     []string // List of rooms in the path
-	length   int      // Number of rooms in the path (excluding start and end)
-	capacity int      // Number of ants that can currently be assigned to this path
-}
-
 func (af *AntFarm) SimulateAnts() []string {
 	if len(af.paths) == 0 {
 		return nil
