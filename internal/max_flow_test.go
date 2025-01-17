@@ -95,6 +95,23 @@ func TestEdmondsKarp(t *testing.T) {
 						}
 					}
 
-				
+					// Check path connectivity
+					for i := 0; i < len(path)-1; i++ {
+						current := tt.input.rooms[path[i]]
+						next := tt.input.rooms[path[i+1]]
+						connected := false
+						for _, conn := range current.connections {
+							if conn.name == next.name {
+								connected = true
+								break
+							}
+						}
+						if !connected {
+							t.Errorf("Invalid path: rooms %s and %s are not connected", path[i], path[i+1])
+						}
+					}
+				}
+			}
+		})
 	}
 }
