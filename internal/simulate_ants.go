@@ -54,6 +54,14 @@ func (af *AntFarm) SimulateAnts() []string {
 				remainingAnts -= antsToSend
 			}
 		}
+		if remainingAnts <= 0 {
+			optimalTurns = mid
+            finalDistribution = make([]PathInfo, len(currentPaths))
+			copy(finalDistribution, currentPaths)
+			right = mid - 1
+		} else {
+			left = mid + 1
+		}
 	}
 
 	
