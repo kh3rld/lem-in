@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"sort"
+	"strings"
 )
 
 func (af *AntFarm) SimulateAnts() []string {
@@ -93,6 +94,23 @@ func (af *AntFarm) SimulateAnts() []string {
 						}
 						currentMoves = append(currentMoves, fmt.Sprintf("L%d%s", ant, nextRoom))
 					}
+				}
+			}
+		}
+
+		//start new ants
+		for i := range finalDistribution {
+			if finalDistribution[i].capacity > 0 {
+				nextRoom := finalDistribution[i].path[1]
+				if !occupied[nextRoom] {
+					antStates[antNum] = struct {
+						pathIndex int
+						position  int
+					}{i, 1}
+					occupied[nextRoom] = true
+					currentMoves = append(currentMoves, fmt.Sprintf("L%d%s", antNum, nextRoom))
+					antNum++ // advance
+					finalDistribution[i].capacity--
 				}
 			}
 		}
