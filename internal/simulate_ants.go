@@ -11,4 +11,11 @@ func (af *AntFarm) SimulateAnts() []string {
 	sort.Slice(af.paths, func(i, j int) bool {
 		return len(af.paths[i]) < len(af.paths[j])
 	})
+
+	// Calculate optimal distribution using turn estimation
+	type PathInfo struct {
+		path     []string
+		length   int
+		capacity int
+	}
 }
