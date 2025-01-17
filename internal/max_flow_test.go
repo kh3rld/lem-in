@@ -73,5 +73,28 @@ func TestEdmondsKarp(t *testing.T) {
 	tests[2].input.rooms["c"].connections = []*Room{tests[2].input.rooms["end"]}
 	tests[2].input.rooms["d"].connections = []*Room{tests[2].input.rooms["end"]}
 
-	
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.input.EdmondsKarp()
+
+			// Check number of paths found
+			if got := len(tt.input.paths); got != tt.wantLen {
+				t.Errorf("EdmondsKarp() path count = %v, want %v", got, tt.wantLen)
+			}
+
+			if tt.wantPath {
+				// Verify path properties
+				for _, path := range tt.input.paths {
+					// Check if path starts and ends correctly
+					if len(path) > 0 {
+						if path[0] != tt.input.startRoom.name {
+							t.Errorf("Path doesn't start at start room: %v", path)
+						}
+						if path[len(path)-1] != tt.input.endRoom.name {
+							t.Errorf("Path doesn't end at end room: %v", path)
+						}
+					}
+
+				
+	}
 }
