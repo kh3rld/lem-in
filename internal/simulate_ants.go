@@ -38,5 +38,23 @@ func (af *AntFarm) SimulateAnts() []string {
 		mid := (left + right) / 2
 		currentPaths := make([]PathInfo, len(paths))
 		copy(currentPaths, paths)
+
+		//calculate how many ants can be sent through each path
+		remainingAnts := af.numAnts
+		for i := range currentPaths {
+			if remainingAnts < 0 {
+				break
+			}
+
+			//maximum ants that can finish in 'mid' turns through this path
+			maxAnts := mid - currentPaths[i].length + 1
+			if maxAnts > 0 {
+				antsToSend := min(remainingAnts, maxAnts)
+				currentPaths[i].capacity = antsToSend
+				remainingAnts -= antsToSend
+			}
+		}
 	}
+
+	
 }
