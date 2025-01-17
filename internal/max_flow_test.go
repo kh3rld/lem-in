@@ -57,5 +57,9 @@ func TestEdmondsKarp(t *testing.T) {
 		},
 	}
 
-	
+	// Set up connections for test cases
+	tests[0].input.rooms["start"].connections = []*Room{tests[0].input.rooms["1"]}
+	tests[0].input.rooms["1"].connections = []*Room{tests[0].input.rooms["end"]}
+
+
 }
