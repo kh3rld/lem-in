@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -113,5 +114,34 @@ func TestEdmondsKarp(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestBFS(t *testing.T) {
+	af := &AntFarm{
+		rooms: map[string]*Room{
+			"start": {name: "start"},
+			"1":     {name: "1"},
+			"end":   {name: "end"},
+		},
+		startRoom: &Room{name: "start"},
+		endRoom:   &Room{name: "end"},
+	}
+
+	residualGraph := map[string]map[string]int{
+		"start": {"1": 1},
+		"1":     {"end": 1},
+		"end":   {},
+	}
+
+	want := []string{"start", "1", "end"}
+	if got := af.bfs(residualGraph); !reflect.DeepEqual(got, want) {
+		t.Errorf("bfs() = %v, want %v", got, want)
+	}
+
+	// Test with no available path
+	residualGraph["1"]["end"] = 0
+	if got := af.bfs(residualGraph); len(got) != 0 {
+		t.Errorf("bfs() = %v, want empty path", got)
 	}
 }
