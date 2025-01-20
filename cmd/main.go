@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"lem-in/internal"
 	"os"
 )
 
@@ -10,7 +11,7 @@ func main() {
 		fmt.Println("Usage: go run . [filename]")
 		return
 	}
-	farm := NewAntFarm()
+	farm := internal.NewAntFarm()
 	content, err := farm.ParseInput(os.Args[1])
 	if err != nil {
 		fmt.Println(err)

@@ -11,30 +11,34 @@ func (af *AntFarm) SimulateAnts() []string {
 		return nil
 	}
 
-	//sort paths by length
+	// Sort paths by length
 	sort.Slice(af.paths, func(i, j int) bool {
 		return len(af.paths[i]) < len(af.paths[j])
 	})
 
-	// Calculate optimal distribution using turn estimation
-	type PathInfo struct {
-		path     []string
-		length   int
-		capacity int
-	}
+	// Calculate optimal distribution of ants
+	paths := calculatePathsInfo(af.paths)
+	optimalTurns, finalDistribution := findOptimalTurns(paths, af.numAnts)
 
-	paths := make([]PathInfo, len(af.paths))
-	for i, path := range af.paths {
-		paths[i] = PathInfo{
+	// Generate and return moves
+	return generateMoves(finalDistribution, optimalTurns, af.numAnts, af.endRoom.name)
+}
+
+
+func calculatePathsInfo(paths [][]string) []PathInfo {
+	pathsInfo := make([]PathInfo, len(paths))
+	for i, path := range paths {
+		pathsInfo[i] = PathInfo{
 			path:     path,
 			length:   len(path) - 1,
 			capacity: 0,
 		}
 	}
+	return pathsInfo
+}
 
-	//calculate the optimal turn count using binary search
-	left := 1
-	right := af.numAnts + len(af.paths[0]) - 1
+func findOptimalTurns(paths []PathInfo, numAnts int) (int, []PathInfo) {
+	left, right := 1, numAnts+len(paths[0].path)-1
 	var optimalTurns int
 	var finalDistribution []PathInfo
 
@@ -43,14 +47,14 @@ func (af *AntFarm) SimulateAnts() []string {
 		currentPaths := make([]PathInfo, len(paths))
 		copy(currentPaths, paths)
 
-		//calculate how many ants can be sent through each path
-		remainingAnts := af.numAnts
+		// Calculate ant distribution for the current turn count (mid)
+		remainingAnts := numAnts
 		for i := range currentPaths {
 			if remainingAnts < 0 {
 				break
 			}
 
-			//maximum ants that can finish in 'mid' turns through this path
+			// Calculate the maximum number of ants that can be sent through this path in 'mid' turns
 			maxAnts := mid - currentPaths[i].length + 1
 			if maxAnts > 0 {
 				antsToSend := min(remainingAnts, maxAnts)
@@ -58,6 +62,7 @@ func (af *AntFarm) SimulateAnts() []string {
 				remainingAnts -= antsToSend
 			}
 		}
+
 		if remainingAnts <= 0 {
 			optimalTurns = mid
 			finalDistribution = make([]PathInfo, len(currentPaths))
@@ -68,7 +73,10 @@ func (af *AntFarm) SimulateAnts() []string {
 		}
 	}
 
-	//generate moves based on optimal distribution
+	return optimalTurns, finalDistribution
+}
+
+func generateMoves(paths []PathInfo, optimalTurns, numAnts int, endRoomName string) []string {
 	moves := make([]string, 0)
 	antNum := 1
 	antStates := make(map[int]struct {
@@ -80,46 +88,66 @@ func (af *AntFarm) SimulateAnts() []string {
 		currentMoves := make([]string, 0)
 		occupied := make(map[string]bool)
 
-		//move existing ants
-		for ant := 1; ant < antNum; ant++ {
-			if state, exists := antStates[ant]; exists {
-				path := finalDistribution[state.pathIndex].path
-				if state.position < len(path)-1 {
-					nextRoom := path[state.position+1]
-					if !occupied[nextRoom] || nextRoom == af.endRoom.name {
-						state.position++ // move forward
-						antStates[ant] = state
-						if nextRoom != af.endRoom.name {
-							occupied[nextRoom] = true
-						}
-						currentMoves = append(currentMoves, fmt.Sprintf("L%d%s", ant, nextRoom))
-					}
-				}
-			}
-		}
+		// Move existing ants
+		moveExistingAnts(&antStates, paths, occupied, &currentMoves, endRoomName)
 
-		//start new ants
-		for i := range finalDistribution {
-			if finalDistribution[i].capacity > 0 {
-				nextRoom := finalDistribution[i].path[1]
-				if !occupied[nextRoom] {
-					antStates[antNum] = struct {
-						pathIndex int
-						position  int
-					}{i, 1}
-					occupied[nextRoom] = true
-					currentMoves = append(currentMoves, fmt.Sprintf("L%d%s", antNum, nextRoom))
-					antNum++ // advance
-					finalDistribution[i].capacity--
-				}
-			}
-		}
+		// Start new ants
+		startNewAnts(paths, &antStates, &antNum, occupied, &currentMoves)
 
 		if len(currentMoves) > 0 {
 			sort.Strings(currentMoves)
 			moves = append(moves, strings.Join(currentMoves, " "))
 		}
 	}
-	return moves
 
+	return moves
+}
+
+func moveExistingAnts(antStates *map[int]struct {
+	pathIndex int
+	position  int
+}, paths []PathInfo, occupied map[string]bool, currentMoves *[]string, endRoomName string) {
+	for ant, state := range *antStates {
+		path := paths[state.pathIndex].path
+		if state.position < len(path)-1 {
+			nextRoom := path[state.position+1]
+			if !occupied[nextRoom] || nextRoom == endRoomName {
+				// Move ant forward
+				state.position++
+				(*antStates)[ant] = state
+				if nextRoom != endRoomName {
+					occupied[nextRoom] = true
+				}
+				*currentMoves = append(*currentMoves, fmt.Sprintf("L%d-%s", ant, nextRoom))
+			}
+		}
+	}
+}
+
+func startNewAnts(paths []PathInfo, antStates *map[int]struct {
+	pathIndex int
+	position  int
+}, antNum *int, occupied map[string]bool, currentMoves *[]string) {
+	for i := range paths {
+		if paths[i].capacity > 0 {
+			nextRoom := paths[i].path[1]
+			if !occupied[nextRoom] {
+				(*antStates)[*antNum] = struct {
+					pathIndex int
+					position  int
+				}{i, 1}
+				occupied[nextRoom] = true
+				*currentMoves = append(*currentMoves, fmt.Sprintf("L%d-%s", *antNum, nextRoom))
+				*antNum++ // Increment ant number
+				paths[i].capacity--
+			}
+		}
+	}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
