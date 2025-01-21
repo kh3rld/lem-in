@@ -67,13 +67,14 @@ func (af *AntFarm) ParseInput(filename string) (string, error) {
 			isEnd = false
 		}
 	}
-
+	Reading(fileContent.String())
 	if af.startRoom == nil {
 		return "", fmt.Errorf("ERROR: invalid data format, no start room found")
 	}
 	if af.endRoom == nil {
 		return "", fmt.Errorf("ERROR: invalid data format, no end room found")
 	}
+	
 	startToEnd := af.ValidateStartEndPath()
 	if startToEnd != nil {
 		return "", fmt.Errorf("ERROR: invalid data format, no link from start to end")
@@ -81,3 +82,4 @@ func (af *AntFarm) ParseInput(filename string) (string, error) {
 
 	return fileContent.String(), nil
 }
+
