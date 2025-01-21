@@ -24,7 +24,6 @@ func (af *AntFarm) SimulateAnts() []string {
 	return generateMoves(finalDistribution, optimalTurns, af.numAnts, af.endRoom.name)
 }
 
-
 func calculatePathsInfo(paths [][]string) []PathInfo {
 	pathsInfo := make([]PathInfo, len(paths))
 	for i, path := range paths {

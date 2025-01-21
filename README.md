@@ -25,7 +25,7 @@ git clone https://learn.zone01kisumu.ke/git/oumouma/lem-in.git
 
 ```
 cd lem-in
-
+cd cmd
 go run main.go farm.txt
 ```
 
@@ -106,9 +106,113 @@ This document outlines the key components, algorithms, error handling, validatio
 
 ### Algorithms
 
-- **Edmonds-Karp Algorithm**: Utilized for finding multiple paths between rooms, ensuring efficient movement of ants through the colony.
-- **Optimal Ant Distribution**: Implements strategies to distribute ants optimally across available paths to maximize efficiency.
-- **Breadth-First Search (BFS)**: Employed for path finding to identify the shortest routes between rooms.
+### Edmonds-Karp Algorithm: 
+Utilized for finding multiple paths between rooms, ensuring efficient movement of ants through the colony.
+```mermaid
+graph TD
+    A[Start Edmonds-Karp] --> B[Create Residual Graph]
+    B --> C[Find Augmenting Path using BFS]
+    C --> D{Path Found?}
+    D -->|Yes| E[Update Residual Graph]
+    E --> C
+    D -->|No| F[End: All Paths Found]
+    
+```
+
+### Breadth-First Search (BFS):
+ Employed for path finding to identify the shortest routes between rooms.
+- #### Algorithm
+```mermaid
+graph TD
+    A[Start] --> B[Initialize:<br/>visited map<br/>parent map<br/>queue]
+    B --> C[Take first room<br/>from queue]
+    C --> D{Queue empty?}
+    D -->|No| E[Get next unvisited<br/>connected room]
+    E --> F{Room has<br/>capacity > 0?}
+    F -->|Yes| G[Mark room as visited<br/>Set parent<br/>Add to queue]
+    G --> H{Is it end room?}
+    H -->|Yes| I[Construct and<br/>return path]
+    H -->|No| C
+    F -->|No| E
+    D -->|Yes| J[Return empty path]
+
+    style A fill:#f9f,stroke:#333,stroke-width:4px
+    style I fill:#9f9,stroke:#333,stroke-width:4px
+    style J fill:#f99,stroke:#333,stroke-width:4px
+```
+- #### Room exploration using BFS
+```mermaid
+graph LR
+    Start((Start))
+    A((A))
+    B((B))
+    C((C))
+    D((D))
+    End((End))
+    
+    Start --> A
+    Start --> B
+    A --> C
+    B --> C
+    B --> D
+    C --> End
+    D --> End
+
+    style Start fill:#f96,stroke:#333,stroke-width:4px
+    style End fill:#9f6,stroke:#333,stroke-width:4px
+    
+    classDef level1 fill:#ffb366
+    classDef level2 fill:#99ff99
+    classDef level3 fill:#ff99cc
+    
+    class A,B level1
+    class C,D level2
+    class End level3
+```
+### Optimal Ant Distribution:
+Implements strategies to distribute ants optimally across available paths to maximize efficiency.
+- #### Main simulation function(simulateAnts)
+```mermaid
+graph TD
+    A[Start SimulateAnts] --> B[Sort paths by length]
+    B --> C[Calculate paths info]
+    C --> D[Find optimal turns & distribution]
+    D --> E[Generate moves]
+    E --> F[Return moves sequence]
+```
+
+- #### Finding Optimal Distribution(findOptimalTurns)
+```mermaid
+graph LR
+    A[Binary Search] --> B[Try mid turns]
+    B --> C{Can all ants finish?}
+    C -->|Yes| D[Store distribution<br>Try fewer turns]
+    C -->|No| E[Try more turns]
+    D --> A
+    E --> A
+```
+
+- #### Move Generation(generateMoves)
+```mermaid
+graph TD
+    A[Start turn] --> B[Move existing ants]
+    B --> C[Start new ants]
+    C --> D[Format moves]
+    D --> E{More turns?}
+    E -->|Yes| A
+    E -->|No| F[End]
+```
+
+- #### Collision Avoidance
+```mermaid
+graph TD
+    A[Check room] --> B{Is room occupied?}
+    B -->|No| C[Move ant]
+    B -->|Yes| D[Wait]
+    C --> E[Mark room occupied]
+```
+
+
 
 ### Error Handling
 

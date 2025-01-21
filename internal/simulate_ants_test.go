@@ -192,7 +192,7 @@ func TestMoveExistingAnts(t *testing.T) {
 			capacity: 1,
 		},
 	}
-	
+
 	antStates := make(map[int]struct {
 		pathIndex int
 		position  int
@@ -201,10 +201,10 @@ func TestMoveExistingAnts(t *testing.T) {
 		pathIndex int
 		position  int
 	}{0, 1}
-	
+
 	occupied := make(map[string]bool)
 	var currentMoves []string
-	
+
 	tests := []struct {
 		name           string
 		endRoomName    string
@@ -215,8 +215,8 @@ func TestMoveExistingAnts(t *testing.T) {
 		}
 	}{
 		{
-			name:        "Move ant to end",
-			endRoomName: "end",
+			name:          "Move ant to end",
+			endRoomName:   "end",
 			expectedMoves: []string{"L1-end"},
 			expectedStates: map[int]struct {
 				pathIndex int
@@ -230,7 +230,7 @@ func TestMoveExistingAnts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			moveExistingAnts(&antStates, paths, occupied, &currentMoves, tt.endRoomName)
-			
+
 			if !reflect.DeepEqual(currentMoves, tt.expectedMoves) {
 				t.Errorf("moveExistingAnts() moves = %v, want %v", currentMoves, tt.expectedMoves)
 			}
@@ -249,7 +249,7 @@ func TestStartNewAnts(t *testing.T) {
 			capacity: 1,
 		},
 	}
-	
+
 	antStates := make(map[int]struct {
 		pathIndex int
 		position  int
@@ -283,7 +283,7 @@ func TestStartNewAnts(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			startNewAnts(paths, &antStates, &antNum, occupied, &currentMoves)
-			
+
 			if !reflect.DeepEqual(currentMoves, tt.expectedMoves) {
 				t.Errorf("startNewAnts() moves = %v, want %v", currentMoves, tt.expectedMoves)
 			}
