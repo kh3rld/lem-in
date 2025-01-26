@@ -19,7 +19,7 @@ Lem-in reads a farm description from a file and calculates the most efficient wa
 
 ### Clone the repository
 ```bash
-git clone https://learn.zone01kisumu.ke/git/oumouma/lem-in.git
+git clone https://github.com/kh3rld/lem-in.git
 ```
 ### Usage
 
